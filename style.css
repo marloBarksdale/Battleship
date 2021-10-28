@@ -1,0 +1,136 @@
+ * {
+     box-sizing: border-box;
+     margin: 0px;
+ }
+
+ .container {
+     display: flex;
+     justify-content: space-evenly;
+     padding-top: 20px;
+ }
+
+ .grid-user {
+     width: 400px;
+     height: 400px;
+     display: flex;
+     flex-wrap: wrap;
+     background-color: turquoise;
+ }
+
+ .grid-computer {
+     width: 400px;
+     height: 400px;
+     display: flex;
+     flex-wrap: wrap;
+     background-color: purple;
+ }
+
+ .grid div {
+     width: 40px;
+     height: 40px;
+     border: 1px solid black;
+ }
+
+ .grid-display {
+     width: 400px;
+     height: 400px;
+     background-color: springgreen;
+ }
+
+ .grid-display.vertical{
+     display: flex;
+ }
+
+ .ship {
+     display: flex;
+     height: 40px;
+     margin: 10px;
+ }
+
+ .ship.vertical {
+     display: flex;
+     width: 40px;
+     flex-wrap: wrap;
+     margin-top: 0;
+ }
+
+ .destroyer-container {
+     width: 80px;
+     background-color: blue;
+ }
+
+ .destroyer-container.vertical {
+     height: 80px;
+ }
+
+ .submarine-container {
+     width: 120px;
+     background-color: blanchedalmond;
+ }
+
+ .submarine-container.vertical {
+     height: 120px;
+ }
+
+ .carrier-container {
+     width: 200px;
+     background-color: pink;
+ }
+
+ .carrier-container.vertical {
+     height: 200px;
+     background-color: pink;
+ }
+
+ .battleship-container {
+     width: 160px;
+     background-color: orange;
+ }
+
+ .battleship-container.vertical {
+     height: 160px;
+     background-color: orange;
+ }
+
+ .cruiser-container {
+     width: 120px;
+     background-color: black;
+ }
+
+ .cruiser-container.vertical {
+     height: 120px;
+     background-color: black;
+ }
+
+ .ship div {
+     width: 40px;
+     height: 40px;
+ }
+
+ .carrier {
+     background-color: pink;
+ }
+
+ .destroyer {
+     background-color: blue;
+ }
+
+ .submarine {
+     background-color: blanchedalmond;
+ }
+
+ .cruiser {
+     background-color: black;
+ }
+
+ .battleship {
+     background-color: orange;
+ }
+
+ .boom{
+     background-color:red;
+ }
+
+ .miss{
+     background-color:slategrey;
+ }

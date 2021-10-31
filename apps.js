@@ -1,4 +1,5 @@
 const userGrid = document.querySelector(".grid-user");
+const userContainer = document.querySelector(".userContainer");
 const computerGrid = document.querySelector(".grid-computer");
 const displayGrid = document.querySelector(".grid-display");
 const ships = document.querySelectorAll(".ship");
@@ -15,11 +16,12 @@ let userSquares = [];
 let computerSquares = [];
 const width = 10;
 let isHorizontal = true;
-let noHorizontalOverflow;
-let noVerticalOverflow;
+let noHorizontalOverflow = false;
+let noVerticalOverflow = false;
 let isGameOver = false;
 let currentPlayer = "user";
 let available = [];
+let isOnDiv;
 //Create Boards
 
 function createBoards(grid, squares) {
@@ -37,46 +39,6 @@ function createBoards(grid, squares) {
 
 createBoards(userGrid, userSquares);
 createBoards(computerGrid, computerSquares);
-
-console.log(userSquares);
-
-const shipArray = [
-  {
-    name: "destroyer",
-    directions: [
-      [0, 1],
-      [0, width],
-    ],
-  },
-  {
-    name: "submarine",
-    directions: [
-      [0, 1, 2],
-      [0, width, width * 2],
-    ],
-  },
-  {
-    name: "cruiser",
-    directions: [
-      [0, 1, 2],
-      [0, width, width * 2],
-    ],
-  },
-  {
-    name: "battleship",
-    directions: [
-      [0, 1, 2, 3],
-      [0, width, width * 2, width * 3],
-    ],
-  },
-  {
-    name: "carrier",
-    directions: [
-      [0, 1, 2, 3, 4],
-      [0, width, width * 2, width * 3, width * 4],
-    ],
-  },
-];
 
 class Ship {
   constructor(name, length) {
@@ -183,13 +145,35 @@ rotateButton.addEventListener("click", rotate);
 //Move user Ships
 
 ships.forEach((ship) => ship.addEventListener("dragstart", dragStart));
+
 userSquares.forEach((square) => {
   square.addEventListener("dragstart", dragStart);
   square.addEventListener("dragover", dragOver);
   square.addEventListener("dragenter", dragEnter);
   square.addEventListener("dragleave", dragLeave);
   square.addEventListener("drop", dragDrop);
+  // square.addEventListener("mouseout", (e)=>{
+  //   e.stopPropagation();
+  // })
+
   square.addEventListener("dragend", dragEnd);
+});
+
+userContainer.addEventListener("mouseenter", function (e) {
+  isOnDiv = true;
+  console.log("mouse in");
+});
+userContainer.addEventListener("dragleave", function (e) {
+  console.log(e.currentTarget);
+  console.log(e.relatedTarget);
+
+  if (e.currentTarget.contains(e.relatedTarget)) {
+    return;
+  }
+
+  userSquares.forEach((node) => node.classList.remove("valid"));
+
+  isOnDiv = false;
 });
 
 ships.forEach((ship) =>
@@ -200,6 +184,15 @@ ships.forEach((ship) =>
 
 let draggedShipLength;
 let myNodeList;
+let dropSafe;
+let dropArea = [];
+let shipFirstId;
+let shipLastId;
+let selectedShipIndex;
+let shipNameWithLastId;
+let shipClass;
+let lastShipIndex;
+
 function dragStart(e) {
   draggedShip = this;
   myNodeList = Array.from(draggedShip.childNodes);
@@ -213,22 +206,12 @@ function dragOver(e) {
 
 function dragEnter(e) {
   e.preventDefault();
-}
 
-function dragLeave() {}
+  shipNameWithLastId = myNodeList[myNodeList.length - 1].id;
+  selectedShipIndex = parseInt(selectShipNameWithIndex.substr(-1));
+  shipClass = shipNameWithLastId.slice(0, -2);
+  lastShipIndex = parseInt(shipNameWithLastId.substr(-1));
 
-function dragDrop() {
-  let shipNameWithLastId = myNodeList[myNodeList.length - 1].id;
-  let selectedShipIndex = parseInt(selectShipNameWithIndex.substr(-1));
-  let shipLastId;
-  let shipFirstId;
-  let shipClass = shipNameWithLastId.slice(0, -2);
-  let dropArea = [];
-  let dropSafe;
-
-  let safeToDrop;
-  let lastShipIndex = parseInt(shipNameWithLastId.substr(-1));
-  console.log(lastShipIndex);
   if (isHorizontal) {
     shipLastId = lastShipIndex + parseInt(this.dataset.id) - selectedShipIndex;
     shipFirstId = shipLastId - lastShipIndex;
@@ -237,16 +220,15 @@ function dragDrop() {
 
   if (!isHorizontal) {
     shipLastId = parseInt(
-      parseInt(this.dataset.id) - selectedShipIndex * 10 + lastShipIndex * 10
+      parseInt(this.dataset.id) - (selectedShipIndex - lastShipIndex) * 10
+      /* + lastShipIndex * 10
+       */
     );
     shipFirstId = shipLastId - lastShipIndex * 10;
     console.log("vertical:" + shipLastId);
   }
 
   // shipLastId = shipLastId - selectedShipIndex;
-
-  console.log("First id:" + shipFirstId);
-  console.log("LastID: " + shipLastId);
 
   if (isHorizontal) {
     for (i = shipFirstId; i <= shipLastId; i++) {
@@ -260,20 +242,17 @@ function dragDrop() {
     }
   }
 
+  dropArea = dropArea.splice(draggedShipLength * -1);
   console.log(dropArea);
 
   if (isHorizontal) {
-    console.log(Math.floor(shipFirstId / 10));
-    console.log(Math.floor(shipLastId / 10));
     noHorizontalOverflow =
       Math.floor(shipFirstId / 10) === Math.floor(shipLastId / 10);
-    console.log(noHorizontalOverflow);
   } else if (!isHorizontal) {
     noVerticalOverflow =
       shipFirstId % 10 === shipLastId % 10 &&
       shipFirstId >= 0 &&
       shipLastId <= 99;
-    console.log(noVerticalOverflow);
   }
 
   available = userSquares
@@ -282,6 +261,81 @@ function dragDrop() {
 
   dropSafe = dropArea.every((square) => available.includes(square));
   console.log(dropSafe);
+
+
+
+
+  if (isHorizontal && noHorizontalOverflow && dropSafe) {
+    /* for (let i = 0; i < draggedShipLength; i++) {
+     userSquares[
+       parseInt(this.dataset.id) - selectedShipIndex + i
+     ].classList.add("taken", shipClass);
+   } */
+    dropArea.forEach((i) => userSquares[i].classList.add("valid"));
+
+    let nodes = userSquares.filter(
+      (square) => !dropArea.includes(parseInt(square.dataset.id))
+    );
+    nodes.forEach((node) => node.classList.remove("valid"));
+    userSquares.forEach(square=>square.classList.remove("invalid"));
+  } else if (!isHorizontal && noVerticalOverflow && dropSafe) {
+    dropArea.forEach((i) => userSquares[i].classList.add("valid"));
+    nodes = userSquares.filter(
+      (square) => !dropArea.includes(parseInt(square.dataset.id))
+    );
+    nodes.forEach((node) => node.classList.remove("valid"));
+    userSquares.forEach(square=>square.classList.remove("invalid"));
+  } else {
+    userSquares.forEach(square=>square.classList.remove("invalid"));
+    dropArea.forEach((i) => userSquares[i].classList.add("invalid"));
+    userSquares.forEach(square=>square.classList.remove("valid"));
+
+  }
+
+  available = userSquares
+    .filter((square) => !square.classList.contains("taken"))
+    .map((square) => parseInt(square.dataset.id));
+}
+
+function dragLeave(e) {
+  e.preventDefault();
+}
+
+function dragDrop() {
+  shipNameWithLastId = myNodeList[myNodeList.length - 1].id;
+  selectedShipIndex = parseInt(selectShipNameWithIndex.substr(-1));
+  shipClass = shipNameWithLastId.slice(0, -2);
+  lastShipIndex = parseInt(shipNameWithLastId.substr(-1));
+
+  userSquares.forEach((square) => square.classList.remove("valid"));
+
+  console.log(lastShipIndex);
+  if (isHorizontal) {
+    shipLastId = lastShipIndex + parseInt(this.dataset.id) - selectedShipIndex;
+    shipFirstId = shipLastId - lastShipIndex;
+    console.log("Horizontal: " + shipLastId);
+  }
+
+  if (!isHorizontal) {
+    shipLastId = parseInt(
+      parseInt(this.dataset.id) - (selectedShipIndex - lastShipIndex) * 10
+      /* + lastShipIndex * 10
+       */
+    );
+    shipFirstId = shipLastId - lastShipIndex * 10;
+    console.log("vertical:" + shipLastId);
+  }
+
+  // shipLastId = shipLastId - selectedShipIndex;
+
+  console.log("First id:" + shipFirstId);
+  console.log("LastID: " + shipLastId);
+
+  console.log(dropArea);
+
+  available = userSquares
+    .filter((square) => !square.classList.contains("taken"))
+    .map((square) => parseInt(square.dataset.id));
 
   if (isHorizontal && noHorizontalOverflow && dropSafe) {
     /* for (let i = 0; i < draggedShipLength; i++) {
@@ -293,13 +347,14 @@ function dragDrop() {
   } else if (!isHorizontal && noVerticalOverflow && dropSafe) {
     dropArea.forEach((i) => userSquares[i].classList.add("taken", shipClass));
   } else {
+    userSquares.forEach(square=>square.classList.remove("invalid"));
+    console.log("cant drop");
     return;
   }
 
   available = userSquares
     .filter((square) => !square.classList.contains("taken"))
     .map((square) => parseInt(square.dataset.id));
-  console.log(available);
 
   displayGrid.removeChild(draggedShip);
 }

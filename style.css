@@ -3,6 +3,11 @@
      margin: 0px;
  }
 
+ .userContainer{
+     z-index: 1000;
+ }
+
+
  .container {
      display: flex;
      justify-content: space-evenly;
@@ -15,6 +20,7 @@
      display: flex;
      flex-wrap: wrap;
      background-color: turquoise;
+     
  }
 
  .grid-computer {
@@ -133,4 +139,15 @@
 
  .miss{
      background-color:slategrey;
+ }
+
+
+
+ .grid div.valid{
+    border:3px solid green;
+ }
+
+
+ .grid div.invalid {
+     border:3px solid red;
  }
